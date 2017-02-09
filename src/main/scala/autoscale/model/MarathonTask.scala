@@ -22,7 +22,7 @@ case class Statistics(cpusSystemTimeSecs: Float,
                       cpusUserTimeSecs:Float,
                       memLimitBytes:Float,
                       memRssBytes:Float,
-                      timestamp: Float)
+                      timestamp: Double)
 
 object Statistics{
   val taskStatisticsRename = FieldSerializer[Statistics](
