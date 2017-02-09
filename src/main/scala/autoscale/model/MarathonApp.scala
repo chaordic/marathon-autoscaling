@@ -10,8 +10,6 @@ import org.json4s.{DefaultFormats}
 
 case class MarathonApp(id:String, tasks:Seq[TaskWithStats]) {
   implicit val formats = DefaultFormats
-  val maxCpu = 0.9
-  val maxMem = 0.9
   val scalePolicy = 1
 
   case class CpuAndMem(cpuTime: Double, memUsage: Float)
@@ -36,9 +34,8 @@ case class MarathonApp(id:String, tasks:Seq[TaskWithStats]) {
     return "OR"
   }
 
-  def isOverUsing: Boolean = {
+  def isOverUsing(maxCpu:Float, maxMem:Float, mode:String): Boolean = {
     val cpuAndMem: CpuAndMem = averageUsages()
-    val mode: String = getTriggerMode()
     mode match {
       case "AND" => cpuAndMem.cpuTime > maxCpu && cpuAndMem.memUsage > maxMem
       case "OR" => cpuAndMem.cpuTime > maxCpu || cpuAndMem.memUsage > maxMem
@@ -46,7 +43,7 @@ case class MarathonApp(id:String, tasks:Seq[TaskWithStats]) {
     }
   }
 
-  def isUnderusing: Boolean = {
+  def isUnderusing(maxCpu:Float, maxMem:Float): Boolean = {
     val cpuAndMem: CpuAndMem = averageUsages()
     println(cpuAndMem.cpuTime)
     println(cpuAndMem.memUsage)
