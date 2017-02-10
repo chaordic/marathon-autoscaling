@@ -17,9 +17,9 @@ object TaskStats {
   )
 }
 
-case class Statistics(cpusSystemTimeSecs: Float,
-                      cpusLimit:Float,
-                      cpusUserTimeSecs:Float,
+case class Statistics(cpusLimit:Double,
+                      cpusSystemTimeSecs: Double,
+                      cpusUserTimeSecs:Double,
                       memLimitBytes:Float,
                       memRssBytes:Float,
                       timestamp: Double)
