@@ -1,20 +1,23 @@
 package autoscale.model
 
+
 import autoscale.model.MarathonService.TaskWithStats
-import org.json4s.DefaultFormats
+import scala.util.Try
 
 /**
   * Created by vitorpaulonavancini on 02/02/17.
   */
-case class MarathonApp(id: String, tasks: Seq[TaskWithStats])
-object MarathonApp {
+case class MarathonApp(id: String, tasks: Seq[TaskWithStats], labels: AutoscaleLabels)
+case class ScalePolicy(max: Float, min: Float, scaleFactor: Int = 1, minInstanceCoumt: Int, maxInstanceCount: Int)
 
+object MarathonApp {
   def calculateCpuUsage(tasksTimestamp1: Seq[TaskWithStats], tasksTimestamp2: Seq[TaskWithStats]): Double = {
     val zip: Seq[(TaskWithStats, TaskWithStats)] = tasksTimestamp1.zip(tasksTimestamp2)
 
-    zip.foldLeft(0.0)((sum: Double, taskPair: (TaskWithStats, TaskWithStats)) => {
-      val stats1: Statistics = taskPair._1.stats.statistics
-      val stats2: Statistics = taskPair._2.stats.statistics
+    val cpuUsagemSum = zip.foldLeft(0.0)((sum: Double, taskPair: (TaskWithStats, TaskWithStats)) => {
+      //return 0 if the task has no statistics in it, make test case for this situation
+      val stats1: Statistics = taskPair._1.stats.get.statistics
+      val stats2: Statistics = taskPair._2.stats.get.statistics
 
       val cpuUsageDelta = (stats2.cpusSystemTimeSecs + stats2.cpusUserTimeSecs) - (stats1.cpusSystemTimeSecs + stats1.cpusUserTimeSecs)
       val timeStampDelta = stats2.timestamp - stats1.timestamp
@@ -23,13 +26,70 @@ object MarathonApp {
 
       sum + cpuTime
     })
+
+    //throws number format exception sometimes
+    val double = BigDecimal(cpuUsagemSum / tasksTimestamp1.length).setScale(2, BigDecimal.RoundingMode.HALF_DOWN).toDouble
+    println(double)
+    double
   }
 
-  def calculateMemUsage(tasks: Seq[TaskWithStats]): Float = {
-    tasks.foldLeft(0f)((acc, task) => {
-      val memUsageA = task.stats.statistics.memRssBytes / task.stats.statistics.memLimitBytes
-      acc + memUsageA
+  def calculateMemUsage(tasks: Seq[TaskWithStats]): Double = {
+    val memUsageSum = tasks.foldLeft(0.0)((acc, task) => {
+      val statistics = task.stats.getOrElse(return 0).statistics
+
+      val memUsage = statistics.memRssBytes / statistics.memLimitBytes * 100
+      acc + memUsage
     })
+    val double = BigDecimal(memUsageSum / tasks.length).setScale(2, BigDecimal.RoundingMode.HALF_DOWN).toDouble
+    println(double)
+    double
+  }
+
+  def getAutoscaleMode(marathonApp: MarathonApp): String = {
+    //gonna allow either cpu or mem, not both, so if both cpu and mem are set, CPU is going to be returned
+    //if nothing is set, MEM is going to be returned
+    val cpuLabelPresent: Boolean = marathonApp.labels.maxCpuPercent.nonEmpty || marathonApp.labels.minCpuPercent.nonEmpty
+    if (cpuLabelPresent) "CPU" else "MEM"
+  }
+
+  def tryFloat(stringOption: Option[String], default: Float): Float = {
+    Try(stringOption.get.toFloat).getOrElse(default)
+  }
+
+  def tryInt(stringOption: Option[String], default: Int): Int = {
+    Try(stringOption.get.toInt).getOrElse(default)
+  }
+
+  val MAX_DEFAULT: Float = 100f
+  val MIN_DEFAULT: Float = 20f
+  val SCALE_FACTOR_DEFAULT: Int = 1
+  val MIN_INSTANCE_DEFAULT: Int = 1
+
+  def getScalePolicy(marathonApp: MarathonApp): ScalePolicy = {
+    val labels: AutoscaleLabels = marathonApp.labels
+    val maxInstanceDefault:Int = marathonApp.tasks.length * 2
+
+    getAutoscaleMode(marathonApp) match {
+      case "CPU" => {
+        ScalePolicy(
+          tryFloat(labels.maxCpuPercent, MAX_DEFAULT),
+          tryFloat(labels.minCpuPercent, MIN_DEFAULT),
+          tryInt(labels.scaleFactor, SCALE_FACTOR_DEFAULT),
+          tryInt(labels.maxInstanceCount, maxInstanceDefault),
+          tryInt(labels.minInstanceCount, MIN_INSTANCE_DEFAULT)
+        )
+      }
+      case "MEM" => {
+        ScalePolicy(
+          tryFloat(labels.maxMemoryPercent, MAX_DEFAULT),
+          tryFloat(labels.minMemoryPercent, MIN_DEFAULT),
+          tryInt(labels.scaleFactor, SCALE_FACTOR_DEFAULT),
+          tryInt(labels.maxInstanceCount, maxInstanceDefault),
+          tryInt(labels.minInstanceCount, MIN_INSTANCE_DEFAULT)
+        )
+      }
+    }
+
   }
 }
 

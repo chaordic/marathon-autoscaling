@@ -1,6 +1,6 @@
 package autoscale.main
 
-import autoscale.model.{MarathonApp, MarathonServiceTrait, Statistics}
+import autoscale.model.{AutoscaleLabels, MarathonApp, MarathonServiceTrait, Statistics}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.WordSpec
 import autoscale.main
@@ -10,11 +10,12 @@ import autoscale.main
 
 class MainSpec  extends WordSpec with MockFactory {
   val marathonApiMock = mock[MarathonServiceTrait]
+  val labels = AutoscaleLabels(None, None, None, None, None, None, None, None)
 
-  val apps1:List[MarathonApp]= List(MarathonApp("apps1", List()))
-  val apps2:List[MarathonApp]= List(MarathonApp("apps2", List()))
-  val apps3:List[MarathonApp]= List(MarathonApp("apps3", List()))
-  val apps4:List[MarathonApp]= List(MarathonApp("apps4", List()))
+  val apps1:List[MarathonApp]= List(MarathonApp("apps1", List(), labels))
+  val apps2:List[MarathonApp]= List(MarathonApp("apps2", List(), labels))
+  val apps3:List[MarathonApp]= List(MarathonApp("apps3", List(), labels))
+  val apps4:List[MarathonApp]= List(MarathonApp("apps4", List(), labels))
 
 
   "main class append To list" should {

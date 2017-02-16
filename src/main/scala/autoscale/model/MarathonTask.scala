@@ -20,8 +20,8 @@ object TaskStats {
 case class Statistics(cpusLimit:Double,
                       cpusSystemTimeSecs: Double,
                       cpusUserTimeSecs:Double,
-                      memLimitBytes:Float,
-                      memRssBytes:Float,
+                      memLimitBytes: Double,
+                      memRssBytes:Double,
                       timestamp: Double)
 
 object Statistics{
