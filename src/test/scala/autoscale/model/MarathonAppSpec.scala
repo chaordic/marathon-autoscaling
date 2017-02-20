@@ -14,7 +14,7 @@ class MarathonAppSpec extends WordSpec with MockFactory {
     27507.64,
     1082130432,
     432885760,
-    1486752438.07666
+    1486752438.07666f
   )
   val statsPoint2 = Statistics(
     0.3,
@@ -22,7 +22,7 @@ class MarathonAppSpec extends WordSpec with MockFactory {
     27508.2,
     1082130432,
     433037312,
-    1486752452.94886
+    1486752452.94886f
   )
 
   val labels = AutoscaleLabels(None, None, None, None, None, None, None, None)

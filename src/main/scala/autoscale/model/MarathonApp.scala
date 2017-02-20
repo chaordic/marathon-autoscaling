@@ -8,29 +8,36 @@ import scala.util.Try
   * Created by vitorpaulonavancini on 02/02/17.
   */
 case class MarathonApp(id: String, tasks: Seq[TaskWithStats], labels: AutoscaleLabels)
-case class ScalePolicy(max: Float, min: Float, scaleFactor: Int = 1, minInstanceCoumt: Int, maxInstanceCount: Int)
+
+case class ScalePolicy(max: Float, min: Float, scaleFactor: Int = 1, maxInstanceCount: Int, minInstanceCount: Int)
 
 object MarathonApp {
   def calculateCpuUsage(tasksTimestamp1: Seq[TaskWithStats], tasksTimestamp2: Seq[TaskWithStats]): Double = {
     val zip: Seq[(TaskWithStats, TaskWithStats)] = tasksTimestamp1.zip(tasksTimestamp2)
 
     val cpuUsagemSum = zip.foldLeft(0.0)((sum: Double, taskPair: (TaskWithStats, TaskWithStats)) => {
-      //return 0 if the task has no statistics in it, make test case for this situation
-      val stats1: Statistics = taskPair._1.stats.get.statistics
-      val stats2: Statistics = taskPair._2.stats.get.statistics
 
-      val cpuUsageDelta = (stats2.cpusSystemTimeSecs + stats2.cpusUserTimeSecs) - (stats1.cpusSystemTimeSecs + stats1.cpusUserTimeSecs)
-      val timeStampDelta = stats2.timestamp - stats1.timestamp
-      val cpuUsage = cpuUsageDelta / timeStampDelta
-      val cpuTime = (cpuUsage / stats1.cpusLimit) * 100.0
-
-      sum + cpuTime
+      val anyTaskEmpty: Boolean = taskPair._1.stats.isEmpty || taskPair._2.stats.isEmpty
+      val cpu = if (anyTaskEmpty) 0
+      else cpuInDeltaTime(
+        taskPair._1.stats.get.statistics,
+        taskPair._2.stats.get.statistics
+      )
+      sum + cpu
     })
-
     //throws number format exception sometimes
     val double = BigDecimal(cpuUsagemSum / tasksTimestamp1.length).setScale(2, BigDecimal.RoundingMode.HALF_DOWN).toDouble
     println(double)
     double
+  }
+
+  def cpuInDeltaTime(stats1: Statistics, stats2: Statistics): Double = {
+    val cpuUsageDelta = (stats2.cpusSystemTimeSecs + stats2.cpusUserTimeSecs) - (stats1.cpusSystemTimeSecs + stats1.cpusUserTimeSecs)
+    val timeStampDelta = stats2.timestamp - stats1.timestamp
+    val cpuUsage = cpuUsageDelta / timeStampDelta
+    val cpuTime = (cpuUsage / stats1.cpusLimit) * 100.0
+
+    cpuTime
   }
 
   def calculateMemUsage(tasks: Seq[TaskWithStats]): Double = {
@@ -67,7 +74,7 @@ object MarathonApp {
 
   def getScalePolicy(marathonApp: MarathonApp): ScalePolicy = {
     val labels: AutoscaleLabels = marathonApp.labels
-    val maxInstanceDefault:Int = marathonApp.tasks.length * 2
+    val maxInstanceDefault: Int = marathonApp.tasks.length * 2
 
     getAutoscaleMode(marathonApp) match {
       case "CPU" => {
