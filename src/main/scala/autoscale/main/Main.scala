@@ -12,7 +12,7 @@ object Main {
     val task = new java.util.TimerTask {
 
 
-      //sometimes usage is negative, dont know why yet
+      //sometimes usage is negative, dont know why yet but it makes no sense so im ignoring it
       //double and float??
       def isOverUsing(usagePercent: Double, maxUsagePercent: Float): Boolean = {
         if (usagePercent < 0) {
@@ -37,6 +37,7 @@ object Main {
           //Im using getAutoscaleMode twice, here and in the MarathonApp.getLimits, maybe its a bad thing
           val mode = MarathonApp.getAutoscaleMode(app)
           val scalePolicy = MarathonApp.getScalePolicy(app)
+          //this throws head empty exception when adding autoscale to a new app in marathon
           val appLastStats: MarathonApp = appsTimeline.tail.head.filter(_.id == app.id).head
 
           println(scalePolicy)
@@ -51,7 +52,7 @@ object Main {
                   app,
                   scalePolicy.scaleFactor,
                   scalePolicy.maxInstanceCount,
-                  scalePolicy.maxInstanceCount
+                  scalePolicy.minInstanceCount
                 )
               }
               if (isUnderUsing(usage, scalePolicy.min)) {
@@ -60,7 +61,7 @@ object Main {
                   app,
                   -scalePolicy.scaleFactor,
                   scalePolicy.maxInstanceCount,
-                  scalePolicy.maxInstanceCount
+                  scalePolicy.minInstanceCount
                 )
               }
             }
@@ -72,7 +73,7 @@ object Main {
                   app,
                   scalePolicy.scaleFactor,
                   scalePolicy.maxInstanceCount,
-                  scalePolicy.maxInstanceCount
+                  scalePolicy.minInstanceCount
                 )
               }
               if (isUnderUsing(usage, scalePolicy.min)) {
@@ -81,7 +82,7 @@ object Main {
                   app,
                   -scalePolicy.scaleFactor,
                   scalePolicy.maxInstanceCount,
-                  scalePolicy.maxInstanceCount
+                  scalePolicy.minInstanceCount
                 )
               }
             }
