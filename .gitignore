@@ -1,8 +1,9 @@
 dist/*
 target/
+.idea/
 lib_managed/
 src_managed/
-project/
+project/target/*
 .history
 .cache
 .lib/
