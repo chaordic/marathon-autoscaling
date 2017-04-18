@@ -1,7 +1,7 @@
 package autoscale.model
 
 import autoscale.model.MarathonService.TaskWithStats
-import org.json4s.FieldSerializer._
+import com.typesafe.config.ConfigFactory
 import org.json4s._
 import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization
@@ -20,8 +20,6 @@ trait MarathonServiceTrait {
   def getAppTasks(appId: String): Seq[TaskWithStats]
 
   def getTasksStats(task: Task): Option[TaskStats]
-
-  def scaleApp(appId: String, scalePolicy: Int)
 }
 
 case class MarathonResponse(id: String, labels: AutoscaleLabels)
@@ -37,10 +35,11 @@ case class AutoscaleLabels(autoscale: Option[String],
                           )
 
 object MarathonService extends MarathonServiceTrait {
-  def scaleApp(appId: String, scalePolicy: Int): Unit = println("scaling!");
-
   val AUTO_SCALE_LABEL: String = "autoscale"
-  val MARATHON_HOST = ""
+  val MARATHON_HOST = ConfigFactory.load().getString("marathon.host")
+  if (MARATHON_HOST.isEmpty) {
+    throw new IllegalArgumentException("Marathon host not defined!")
+  }
 
   def fetchAppsForScale(): List[MarathonApp] = {
     implicit val formats = DefaultFormats
