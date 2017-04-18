@@ -43,47 +43,49 @@ object Main {
           println(scalePolicy)
           println(mode)
 
-          mode match {
-            case "CPU" => {
-              val usage = MarathonApp.calculateCpuUsage(app.tasks, appLastStats.tasks)
-              if (isOverUsing(usage, scalePolicy.max)) {
-                println(s"too much cpu for ${app.id}")
-                MarathonService.scaleApp(
-                  app,
-                  scalePolicy.scaleFactor,
-                  scalePolicy.maxInstanceCount,
-                  scalePolicy.minInstanceCount
-                )
+          if(appLastStats.tasks.length == app.tasks.length) {
+            mode match {
+              case "CPU" => {
+                val usage = MarathonApp.calculateCpuUsage(app.tasks, appLastStats.tasks)
+                if (isOverUsing(usage, scalePolicy.max)) {
+                  println(s"too much cpu for ${app.id}")
+                  MarathonService.scaleApp(
+                    app,
+                    scalePolicy.scaleFactor,
+                    scalePolicy.maxInstanceCount,
+                    scalePolicy.minInstanceCount
+                  )
+                }
+                if (isUnderUsing(usage, scalePolicy.min)) {
+                  println(s"too little cpu for ${app.id}")
+                  MarathonService.scaleApp(
+                    app,
+                    -scalePolicy.scaleFactor,
+                    scalePolicy.maxInstanceCount,
+                    scalePolicy.minInstanceCount
+                  )
+                }
               }
-              if (isUnderUsing(usage, scalePolicy.min)) {
-                println(s"too little cpu for ${app.id}")
-                MarathonService.scaleApp(
-                  app,
-                  -scalePolicy.scaleFactor,
-                  scalePolicy.maxInstanceCount,
-                  scalePolicy.minInstanceCount
-                )
-              }
-            }
-            case "MEM" => {
-              val usage = MarathonApp.calculateMemUsage(app.tasks)
-              if (isOverUsing(usage, scalePolicy.max)) {
-                println(s"too much mem for ${app.id}")
-                MarathonService.scaleApp(
-                  app,
-                  scalePolicy.scaleFactor,
-                  scalePolicy.maxInstanceCount,
-                  scalePolicy.minInstanceCount
-                )
-              }
-              if (isUnderUsing(usage, scalePolicy.min)) {
-                println(s"too little mem for ${app.id}")
-                MarathonService.scaleApp(
-                  app,
-                  -scalePolicy.scaleFactor,
-                  scalePolicy.maxInstanceCount,
-                  scalePolicy.minInstanceCount
-                )
+              case "MEM" => {
+                val usage = MarathonApp.calculateMemUsage(app.tasks)
+                if (isOverUsing(usage, scalePolicy.max)) {
+                  println(s"too much mem for ${app.id}")
+                  MarathonService.scaleApp(
+                    app,
+                    scalePolicy.scaleFactor,
+                    scalePolicy.maxInstanceCount,
+                    scalePolicy.minInstanceCount
+                  )
+                }
+                if (isUnderUsing(usage, scalePolicy.min)) {
+                  println(s"too little mem for ${app.id}")
+                  MarathonService.scaleApp(
+                    app,
+                    -scalePolicy.scaleFactor,
+                    scalePolicy.maxInstanceCount,
+                    scalePolicy.minInstanceCount
+                  )
+                }
               }
             }
           }

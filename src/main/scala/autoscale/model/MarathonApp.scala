@@ -32,8 +32,8 @@ object MarathonApp {
   }
 
   def cpuInDeltaTime(stats1: Statistics, stats2: Statistics): Double = {
-    val cpuUsageDelta = (stats2.cpusSystemTimeSecs + stats2.cpusUserTimeSecs) - (stats1.cpusSystemTimeSecs + stats1.cpusUserTimeSecs)
-    val timeStampDelta = stats2.timestamp - stats1.timestamp
+    val cpuUsageDelta = (stats1.cpusSystemTimeSecs + stats1.cpusUserTimeSecs) - (stats2.cpusSystemTimeSecs + stats2.cpusUserTimeSecs)
+    val timeStampDelta = stats1.timestamp - stats2.timestamp
     val cpuUsage = cpuUsageDelta / timeStampDelta
     val cpuTime = (cpuUsage / stats1.cpusLimit) * 100.0
 
@@ -99,4 +99,3 @@ object MarathonApp {
 
   }
 }
-
