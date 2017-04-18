@@ -40,7 +40,7 @@ object MarathonService extends MarathonServiceTrait {
   def scaleApp(appId: String, scalePolicy: Int): Unit = println("scaling!");
 
   val AUTO_SCALE_LABEL: String = "autoscale"
-  val MARATHON_HOST = "***REMOVED***"
+  val MARATHON_HOST = ""
 
   def fetchAppsForScale(): List[MarathonApp] = {
     implicit val formats = DefaultFormats
