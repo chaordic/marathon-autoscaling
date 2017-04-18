@@ -11,7 +11,6 @@ object Main {
     val t = new java.util.Timer()
     val task = new java.util.TimerTask {
 
-
       //sometimes usage is negative, dont know why yet but it makes no sense so im ignoring it
       //double and float??
       def isOverUsing(usagePercent: Double, maxUsagePercent: Float): Boolean = {
@@ -28,7 +27,7 @@ object Main {
         usagePercent < maxUsagePercent
       }
 
-    def run() = {
+      def run() = {
         val appForScale: List[MarathonApp] = MarathonService.fetchAppsForScale()
         appsTimeline = appendToTimelineHead(appForScale, appsTimeline)
 
@@ -43,7 +42,7 @@ object Main {
           println(scalePolicy)
           println(mode)
 
-          if(appLastStats.tasks.length == app.tasks.length) {
+          if (appLastStats.tasks.length == app.tasks.length) {
             mode match {
               case "CPU" => {
                 val usage = MarathonApp.calculateCpuUsage(app.tasks, appLastStats.tasks)
