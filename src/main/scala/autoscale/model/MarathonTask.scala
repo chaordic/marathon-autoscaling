@@ -3,10 +3,6 @@ package autoscale.model
 import org.json4s.FieldSerializer
 import org.json4s.FieldSerializer._
 
-/**
-  * Created by vitorpaulonavancini on 08/02/17.
-  */
-
 case class Task(id:String, host:String)
 
 case class TaskStats(executorId:String, statistics: Statistics)

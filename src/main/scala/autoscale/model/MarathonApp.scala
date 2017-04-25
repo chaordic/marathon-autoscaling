@@ -4,9 +4,6 @@ package autoscale.model
 import autoscale.model.MarathonService.TaskWithStats
 import scala.util.Try
 
-/**
-  * Created by vitorpaulonavancini on 02/02/17.
-  */
 case class MarathonApp(id: String, tasks: Seq[TaskWithStats], labels: AutoscaleLabels)
 
 case class ScalePolicy(max: Float, min: Float, scaleFactor: Int = 1, maxInstanceCount: Int, minInstanceCount: Int)

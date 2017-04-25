@@ -4,9 +4,6 @@ import autoscale.model.{AutoscaleLabels, MarathonApp, MarathonServiceTrait, Stat
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.WordSpec
 import autoscale.main
-/**
-  * Created by vitorpaulonavancini on 10/02/17.
-  */
 
 class MainSpec  extends WordSpec with MockFactory {
   val marathonApiMock = mock[MarathonServiceTrait]

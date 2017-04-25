@@ -8,11 +8,6 @@ import org.json4s.native.Serialization
 
 import scalaj.http.{Http, HttpResponse}
 
-/**
-  * Created by vitorpaulonavancini on 03/02/17.
-  *
-  * Represents the marathon rest api
-  */
 
 trait MarathonServiceTrait {
   def fetchAppsForScale(): Seq[MarathonApp]

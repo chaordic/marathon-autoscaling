@@ -2,17 +2,13 @@ package autoscale.main
 
 import autoscale.model._
 
-/**
-  * Created by vitorpaulonavancini on 02/02/17.
-  */
+
 object Main {
   def main(args: Array[String]) {
     var appsTimeline: List[List[MarathonApp]] = List(MarathonService.fetchAppsForScale())
     val t = new java.util.Timer()
     val task = new java.util.TimerTask {
 
-      //sometimes usage is negative, dont know why yet but it makes no sense so im ignoring it
-      //double and float??
       def isOverUsing(usagePercent: Double, maxUsagePercent: Float): Boolean = {
         if (usagePercent < 0) {
           return false

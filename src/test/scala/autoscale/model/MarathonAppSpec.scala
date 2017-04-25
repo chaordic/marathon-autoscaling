@@ -3,10 +3,7 @@ package autoscale.model
 import autoscale.model.MarathonService.TaskWithStats
 import org.scalatest.WordSpec
 import org.scalamock.scalatest.MockFactory
-
-/**
-  * Created by vitorpaulonavancini on 07/02/17.
-  */
+  
 class MarathonAppSpec extends WordSpec with MockFactory {
   val statsPoint1 = Statistics(
     0.3,
